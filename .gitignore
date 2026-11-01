@@ -1,0 +1,8 @@
+.env
+myenv/
+__pycache__/
+.vscode/
+*.pyc
+.ipynb_checkpoints/
+main.ipynb
+2.persistence.ipynb
