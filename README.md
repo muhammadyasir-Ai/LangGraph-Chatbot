@@ -13,6 +13,13 @@ This project demonstrates how to connect an LLM with a LangGraph backend and bui
 - Streamlit
 - Python-dotenv
 
+## Features
+
+- AI-powered chatbot using LangGraph and Groq API
+- Interactive chat interface using Streamlit
+- Conversation history management
+- Streaming responses for real-time AI output
+
 ## Project Structure
 
 ```text
