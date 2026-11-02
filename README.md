@@ -102,11 +102,16 @@ The chatbot will open in your browser.
 
 - ## Screenshots
 
-### Chatbot Interface
-![Chatbot Interface](Images/chatbot.png%20(2).png)
 
 ### Chatbot Conversation
 ![Chatbot Conversation](Images/chatbot.png(1).png)
 
+### Chatbot Interface
+![Chatbot Interface](Images/chatbot.png%20(2).png)
+
 ### Chatbot Response
 ![Chatbot Response](Images/chatbot.png(3).png)
+
+### Sidebar
+
+![Sidebar Screenshot](Images/sidebar.png)
