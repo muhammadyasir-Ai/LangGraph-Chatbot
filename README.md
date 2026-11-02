@@ -20,6 +20,18 @@ This project demonstrates how to connect an LLM with a LangGraph backend and bui
 - Conversation history management
 - Streaming responses for real-time AI output
 
+### # New Chat
+Starts a new conversation with a unique thread ID.
+
+### # Conversation History
+Displays the list of previous chat threads.
+
+### # Load Previous Conversations
+Allows users to select and continue previous conversations.
+
+### # Streaming Responses
+Displays AI responses in real time instead of waiting for the complete response.
+
 ## Project Structure
 
 ```text
