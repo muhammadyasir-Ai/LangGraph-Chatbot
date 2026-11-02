@@ -114,4 +114,6 @@ The chatbot will open in your browser.
 
 ### Sidebar
 
-![Sidebar Screenshot](Images/sidebar.png)
+### Sidebar
+
+![Sidebar Screenshot](Images/sidebar.png.png)
