@@ -2,9 +2,10 @@ from langgraph.graph import StateGraph,START,END, add_messages
 from typing import TypedDict,Annotated
 from langchain_core.messages import BaseMessage,HumanMessage
 from langchain_groq import ChatGroq
-from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.sqlite import SqliteSaver
 from dotenv import load_dotenv
 import os
+import sqlite3
 
 load_dotenv()
 
@@ -17,16 +18,40 @@ class ChatState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
 
 
-
 def chat_node(state: ChatState) -> ChatState:
 
-   #take user query from state and append to messages
     messages = state['messages']
-   #send to llm and get response
-    response = llm.invoke(messages)
-    return {'messages': response}
 
-checkpointer = MemorySaver()
+    response = llm.invoke(messages)
+
+    return {'messages': [response]}
+
+conn = sqlite3.connect(database='chatbot.db', check_same_thread=False)
+checkpointer = SqliteSaver(conn=conn)
+
+#*****************************CHAT TITLE DATABASE*****************************
+
+conn.execute("""
+    CREATE TABLE IF NOT EXISTS chat_titles (
+        thread_id TEXT PRIMARY KEY,
+        title TEXT
+    )
+""")
+
+conn.commit()
+
+
+def save_chat_title(thread_id, title):
+    conn.execute(
+        "INSERT OR REPLACE INTO chat_titles (thread_id, title) VALUES (?, ?)",
+        (thread_id, title)
+    )
+    conn.commit()
+
+
+def retrieve_chat_titles():
+    cursor = conn.execute("SELECT thread_id, title FROM chat_titles")
+    return dict(cursor.fetchall())
 
 graph = StateGraph(ChatState)
 
@@ -38,3 +63,10 @@ graph.add_edge(START,'chat_node')
 graph.add_edge('chat_node',END)
 
 chatbot = graph.compile(checkpointer=checkpointer)
+
+def retrieve_all_threads():
+    all_threads = set()
+    for checkpoint in checkpointer.list(None):
+        all_threads.add(checkpoint.config['configurable']['thread_id'])
+
+    return list(all_threads)

@@ -6,3 +6,6 @@ __pycache__/
 .ipynb_checkpoints/
 main.ipynb
 2.persistence.ipynb
+chatbot.db
+chatbot.db-shm
+chatbot.db-wal
