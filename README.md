@@ -121,7 +121,7 @@ The chatbot will open in your browser.
 
 ### Chatbot Interface
 
-![Chatbot Interface](Images/chatbot.png%20(2).png)
+![Chatbot Interface](Images/chatbot-interface.png)
 
 ### Chatbot Response
 
