@@ -2,7 +2,7 @@
 
 An interactive AI chatbot built using **LangGraph**, **Groq API**, and **Streamlit**.
 
-This project demonstrates how to connect an LLM with a LangGraph backend and build a simple user-friendly chatbot interface using Streamlit.
+This project demonstrates how to connect an LLM with a LangGraph backend and build a user-friendly chatbot interface using Streamlit.
 
 ## Technologies Used
 
@@ -12,6 +12,7 @@ This project demonstrates how to connect an LLM with a LangGraph backend and bui
 - Groq API
 - Streamlit
 - Python-dotenv
+- SQLite
 
 ## Features
 
@@ -19,18 +20,32 @@ This project demonstrates how to connect an LLM with a LangGraph backend and bui
 - Interactive chat interface using Streamlit
 - Conversation history management
 - Streaming responses for real-time AI output
+- Multiple conversations with unique thread IDs
+- Persistent conversation storage using SQLite
+- Automatic chat title generation
+- Persistent chat titles stored in SQLite
+- Load and continue previous conversations
 
-### # New Chat
+### New Chat
 Starts a new conversation with a unique thread ID.
 
-### # Conversation History
-Displays the list of previous chat threads.
+### Conversation History
+Displays the list of previous chat threads in the sidebar.
 
-### # Load Previous Conversations
+### Load Previous Conversations
 Allows users to select and continue previous conversations.
 
-### # Streaming Responses
+### Streaming Responses
 Displays AI responses in real time instead of waiting for the complete response.
+
+### Persistent Conversation History
+Stores conversations using LangGraph's SQLite checkpointer, allowing previous conversations to be restored after restarting the application.
+
+### Automatic Chat Titles
+Automatically generates a title from the first user message.
+
+### Persistent Chat Titles
+Stores chat titles in a separate SQLite table so they remain available after restarting the application.
 
 ## Project Structure
 
@@ -42,7 +57,12 @@ Langraph_Chatbot/
 ├── requirements.txt
 ├── README.md
 ├── .gitignore
-└── .env
+├── .env
+└── Images/
+    ├── chatbot.png (1).png
+    ├── chatbot.png (2).png
+    ├── chatbot.png (3).png
+    └── sidebar.png.png
 ```
 
 ## Installation and Setup
@@ -50,7 +70,7 @@ Langraph_Chatbot/
 ### 1. Clone the repository
 
 ```bash
-git clone YOUR_REPOSITORY_URL
+git clone https://github.com/muhammadyasir-Ai/LangGraph-Chatbot.git
 ```
 
 ### 2. Open the project folder
@@ -93,27 +113,27 @@ streamlit run streamlit_frontend.py
 
 The chatbot will open in your browser.
 
+## Screenshots
+
+### Chatbot Conversation
+
+![Chatbot Conversation](Images/chatbot.png%20(1).png)
+
+### Chatbot Interface
+
+![Chatbot Interface](Images/chatbot.png%20(2).png)
+
+### Chatbot Response
+
+![Chatbot Response](Images/chatbot.png%20(3).png)
+
+### Sidebar
+
+![Sidebar Screenshot](Images/sidebar.png.png)
+
 ## Author
 
 **Muhammad Yasir**
 
 - GitHub: [muhammadyasir-Ai](https://github.com/muhammadyasir-Ai)
 - LinkedIn: [Muhammad Yasir](https://www.linkedin.com/in/muhammad-yasir-17211a423)
-
-- ## Screenshots
-
-
-### Chatbot Conversation
-![Chatbot Conversation](Images/chatbot.png(1).png)
-
-### Chatbot Interface
-![Chatbot Interface](Images/chatbot.png%20(2).png)
-
-### Chatbot Response
-![Chatbot Response](Images/chatbot.png(3).png)
-
-### Sidebar
-
-### Sidebar
-
-![Sidebar Screenshot](Images/sidebar.png.png)
