@@ -125,7 +125,7 @@ The chatbot will open in your browser.
 
 ### Chatbot Response
 
-![Chatbot Response](Images/chatbot.png%20(3).png)
+![Chatbot Response](Images/chatbot-response.png)
 
 ### Sidebar
 
