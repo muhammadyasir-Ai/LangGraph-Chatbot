@@ -129,7 +129,7 @@ The chatbot will open in your browser.
 
 ### Sidebar
 
-![Sidebar Screenshot](Images/sidebar.png.png)
+![Sidebar Screenshot](Images/chatbot-sidebar.png)
 
 ## Author
 
