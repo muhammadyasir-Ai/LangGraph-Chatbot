@@ -1,13 +1,15 @@
+from dotenv import load_dotenv
+load_dotenv()
 from langgraph.graph import StateGraph,START,END, add_messages
 from typing import TypedDict,Annotated
 from langchain_core.messages import BaseMessage,HumanMessage
 from langchain_groq import ChatGroq
 from langgraph.checkpoint.sqlite import SqliteSaver
 from dotenv import load_dotenv
+
 import os
 import sqlite3
 
-load_dotenv()
 
 llm = ChatGroq(
     model="openai/gpt-oss-20b",
