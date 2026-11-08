@@ -5,7 +5,7 @@ from langgraph_backend import (
     save_chat_title,
     retrieve_chat_titles
 )
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage,AIMessage
 import uuid
 
 
@@ -145,20 +145,63 @@ if user_input:
 
 # ***************************** STREAMING RESPONSE *****************************
 
+
+
 if user_input:
 
     with st.chat_message("assistant"):
 
-        ai_message = st.write_stream(
-            message_chunk.content
-            for message_chunk, metadata in chatbot.stream(
+        final_answer = ""
+
+        with st.status("Processing your request...", expanded=True) as status:
+
+            for update in chatbot.stream(
                 {'messages': [HumanMessage(content=user_input)]},
                 config=CONFIG,
-                stream_mode='messages'
+                stream_mode="updates"
+            ):
+
+                # Check chatbot node
+                if "chat_node" in update:
+
+                    messages = update["chat_node"].get("messages", [])
+
+                    if messages:
+
+                        ai_message = messages[-1]
+
+                        # Detect tool calls
+                        tool_calls = getattr(ai_message, "tool_calls", [])
+
+                        if tool_calls:
+
+                            for tool_call in tool_calls:
+                                tool_name = tool_call.get("name", "Unknown tool")
+
+                                status.write(
+                                    f"Calling **{tool_name}** tool..."
+                                )
+
+                        else:
+
+                            content = ai_message.content
+
+                            if isinstance(content, str):
+                                final_answer = content
+
+                # Detect tool execution completion
+                if "tools" in update:
+                    status.write("Tool execution completed.")
+
+            status.update(
+                label="Response generated",
+                state="complete",
+                expanded=False
             )
-        )
+
+        st.markdown(final_answer)
 
     st.session_state['message_history'].append({
         "role": "assistant",
-        "content": ai_message
+        "content": final_answer
     })
