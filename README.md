@@ -125,6 +125,20 @@ The application will open in your browser.
 - Enhance response streaming.
 - Improve error handling and user experience.
 
+  ## Screenshots
+
+### Chatbot Conversation
+![Chatbot Conversation](Images/chatbot-conversation.png)
+
+### Chatbot Interface
+![Chatbot Interface](Images/chatbot-interface.png)
+
+### Chatbot Response
+![Chatbot Response](Images/chatbot-response.png)
+
+### Sidebar
+![Sidebar Screenshot](Images/chatbot-sidebar.png)
+
 ## Author
 
 **Muhammad Yasir**
