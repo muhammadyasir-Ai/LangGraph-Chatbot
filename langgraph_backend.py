@@ -1,5 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()
+from rag_pipeline import retrieve_documents
+from rag_store import get_vector_store
 
 import os
 import sqlite3
@@ -104,6 +106,41 @@ def get_stock_price(symbol: str) -> dict:
     except requests.RequestException as e:
         return {"error": str(e)}
 
+# ***************************** RAG TOOL (DOCUMENT RETRIEVAL) *****************************
+
+@tool
+def search_uploaded_document(query: str) -> str:
+    """
+    Search the uploaded PDF document and return relevant information.
+    Use this tool when the user asks questions about their uploaded document.
+    """
+
+    try:
+
+        vector_store = get_vector_store()
+
+        if vector_store is None:
+            return "No PDF document has been uploaded yet."
+
+        relevant_documents = retrieve_documents(
+            vector_store,
+            query
+        )
+
+        if not relevant_documents:
+            return "No relevant information found in the uploaded document."
+
+        context = "\n\n".join(
+            document.page_content
+            for document in relevant_documents
+        )
+
+        return context
+
+    except Exception as e:
+
+        return f"Document retrieval failed: {str(e)}"
+
 
 # ***************************** MCP TOOLS (EXPENSE TRACKER) *****************************
 # Loaded from the expense tracker MCP server chosen by MCP_MODE in your .env file.
@@ -111,7 +148,15 @@ def get_stock_price(symbol: str) -> dict:
 # chatbot works exactly as before.
 expense_tools = load_expense_tools()
 
-tools = [calculator, get_stock_price, web_search] + expense_tools
+# ***************************** AVAILABLE TOOLS *****************************
+
+tools = [
+    calculator,
+    get_stock_price,
+    web_search,
+    search_uploaded_document
+] + expense_tools
+
 llm_with_tools = llm.bind_tools(tools)
 
 
@@ -132,6 +177,13 @@ When using web_search:
 6. If a snippet is insufficient, exclude that finding.
 7. Clearly state when information cannot be verified.
 8. Never claim that results are the latest unless dates support it.
+When answering questions about uploaded documents:
+
+1. Use search_uploaded_document to retrieve relevant information from the uploaded PDF.
+2. Base your answer on the retrieved document content.
+3. Do not invent information that is not present in the document.
+4. If relevant information is not found, clearly tell the user.
+5. Explain the answer in simple and clear language.
 """
 
 EXPENSE_PROMPT = """

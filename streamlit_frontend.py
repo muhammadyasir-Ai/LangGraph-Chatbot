@@ -1,3 +1,9 @@
+
+import tempfile
+import os
+from rag_store import set_vector_store
+from rag_pipeline import process_pdf
+
 import streamlit as st
 from langgraph_backend import (
     chatbot,
@@ -5,7 +11,7 @@ from langgraph_backend import (
     save_chat_title,
     retrieve_chat_titles
 )
-from langchain_core.messages import HumanMessage,AIMessage
+from langchain_core.messages import HumanMessage, AIMessage
 import uuid
 
 
@@ -65,6 +71,15 @@ if "thread_titles" not in st.session_state:
 add_thread(st.session_state['thread_id'])
 
 
+# ***************************** RAG SESSION STATE *****************************
+
+if "vector_store" not in st.session_state:
+    st.session_state["vector_store"] = None
+
+if "uploaded_file_name" not in st.session_state:
+    st.session_state["uploaded_file_name"] = None
+
+
 # ***************************** SIDEBAR *****************************
 
 st.sidebar.title("LangGraph Chatbot")
@@ -73,6 +88,73 @@ if st.sidebar.button("New Chat"):
     reset_chat()
 
 st.sidebar.header("Conversation History")
+
+
+# ***************************** RAG DOCUMENT UPLOAD *****************************
+
+st.sidebar.divider()
+
+st.sidebar.subheader("📄 Upload Documents")
+
+uploaded_file = st.sidebar.file_uploader(
+    "Upload a PDF",
+    type=["pdf"]
+)
+
+
+# ***************************** PROCESS UPLOADED PDF *****************************
+
+if uploaded_file is not None:
+
+    # Check whether this PDF is already processed
+    if uploaded_file.name != st.session_state["uploaded_file_name"]:
+
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".pdf"
+        ) as temporary_file:
+
+            temporary_file.write(uploaded_file.getvalue())
+
+            pdf_path = temporary_file.name
+
+        try:
+
+            with st.spinner("Processing PDF..."):
+
+                vector_store = process_pdf(pdf_path)
+
+                st.session_state["vector_store"] = vector_store
+
+                set_vector_store(vector_store)
+
+                st.session_state["uploaded_file_name"] = uploaded_file.name
+
+            st.success("PDF processed successfully!")
+
+        except Exception as e:
+
+            st.error(f"Error processing PDF: {e}")
+
+        finally:
+
+            if os.path.exists(pdf_path):
+                os.remove(pdf_path)
+
+    else:
+
+        st.info("This PDF is already processed.")
+
+else:
+
+    st.session_state["vector_store"] = None
+
+    st.session_state["uploaded_file_name"] = None
+
+    set_vector_store(None)
+
+
+# ***************************** CONVERSATION HISTORY *****************************
 
 for thread_id in st.session_state['chat_thread'][::-1]:
 
@@ -90,15 +172,23 @@ for thread_id in st.session_state['chat_thread'][::-1]:
 
         for message in messages:
 
+            # Show user messages
             if isinstance(message, HumanMessage):
-                role = "user"
-            else:
-                role = "assistant"
 
-            temporary_message_history.append({
-                "role": role,
-                "content": message.content
-            })
+                temporary_message_history.append({
+                    "role": "user",
+                    "content": message.content
+                })
+
+            # Show only final AI responses
+            elif isinstance(message, AIMessage):
+
+                if not message.tool_calls and message.content:
+
+                    temporary_message_history.append({
+                        "role": "assistant",
+                        "content": message.content
+                    })
 
         st.session_state['message_history'] = temporary_message_history
 
@@ -143,9 +233,8 @@ if user_input:
         'run_name': 'chat_turn'
     }
 
+
 # ***************************** STREAMING RESPONSE *****************************
-
-
 
 if user_input:
 
