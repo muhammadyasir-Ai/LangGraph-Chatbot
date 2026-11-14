@@ -1,17 +1,29 @@
 # LangGraph Chatbot
 
-An AI-powered chatbot built using **LangGraph, Groq LLM, Streamlit, and Model Context Protocol (MCP)**. It supports web search, mathematical calculations, stock price lookup, persistent conversation history, and expense management through MCP servers.
+An AI-powered chatbot built using **LangGraph, Groq LLM, Streamlit, and Model Context Protocol (MCP)**. It supports web search, mathematical calculations, stock price lookup, PDF document question answering using Retrieval-Augmented Generation (RAG), persistent conversation history, and expense management through MCP servers.
 
 ## Features
 
 ### AI Chatbot
 - Chat with an LLM powered by Groq.
 - Manage conversations through an interactive Streamlit interface.
+- Stream responses for a better chat experience.
 
 ### Built-in Tools
 - **Web Search:** Search the web using DuckDuckGo.
 - **Calculator:** Perform basic arithmetic operations.
 - **Stock Price:** Retrieve stock quotes using the Alpha Vantage API.
+
+### Retrieval-Augmented Generation (RAG)
+- **PDF Upload:** Upload PDF documents directly through the Streamlit sidebar.
+- **PDF Loading:** Extract document text using PyPDFLoader.
+- **Text Splitting:** Divide documents into smaller chunks using RecursiveCharacterTextSplitter.
+- **Embeddings:** Generate local text embeddings using Hugging Face Sentence Transformers.
+- **Vector Database:** Store and search document embeddings using FAISS.
+- **Semantic Search:** Retrieve relevant document content based on user queries.
+- **LangGraph Integration:** Use document retrieval as a chatbot tool to answer questions from uploaded PDFs.
+
+The chatbot uses retrieved document content to generate context-aware answers. One PDF can be processed at a time, and uploading a different PDF replaces the previous document.
 
 ### MCP Integration
 - **MCP Client:** Connect the chatbot to external MCP servers using Python and FastMCP.
@@ -21,6 +33,7 @@ An AI-powered chatbot built using **LangGraph, Groq LLM, Streamlit, and Model Co
 - **16 MCP Tools:** Access expense management functionality through MCP.
 
 ### Expense Tracker
+
 The chatbot can perform the following operations:
 
 - Add, list, search, edit, and delete expenses.
@@ -47,6 +60,9 @@ The chatbot can perform the following operations:
 - Streamlit
 - FastMCP
 - Model Context Protocol (MCP)
+- Hugging Face Sentence Transformers
+- FAISS
+- PyPDF
 - SQLite
 - DuckDuckGo Search (`ddgs`)
 - Alpha Vantage API
@@ -60,6 +76,10 @@ LangGraph-Chatbot/
 │
 ├── langgraph_backend.py
 ├── streamlit_frontend.py
+│
+├── rag_pipeline.py
+├── rag_store.py
+│
 ├── mcp_tools.py
 │
 ├── client_local.py
@@ -153,6 +173,47 @@ streamlit run streamlit_frontend.py
 
 The application will open in your browser.
 
+## Using RAG with PDF Documents
+
+1. Start the Streamlit chatbot.
+2. Open the sidebar.
+3. Upload a PDF document.
+4. Wait for the document processing to complete.
+5. Ask questions related to the uploaded document.
+6. The chatbot retrieves relevant document chunks through FAISS and uses them to generate an answer.
+
+**RAG Processing Pipeline:**
+
+```text
+PDF Upload
+    |
+    v
+PyPDFLoader
+    |
+    v
+Text Extraction
+    |
+    v
+RecursiveCharacterTextSplitter
+    |
+    v
+Hugging Face Embeddings
+    |
+    v
+FAISS Vector Store
+    |
+    v
+Semantic Retrieval
+    |
+    v
+LangGraph RAG Tool
+    |
+    v
+Groq LLM Response
+```
+
+The embedding model is downloaded locally from Hugging Face. The first run may take additional time because the model needs to be downloaded.
+
 ## MCP Client Examples
 
 The repository includes three example clients for understanding MCP connections:
@@ -174,11 +235,13 @@ The main MCP integration is handled through `mcp_tools.py`, which connects MCP t
    - Web Search
    - Calculator
    - Stock Price
+   - PDF Document Retrieval (RAG)
    - Expense Tracker MCP Tools
-5. The MCP client communicates with the configured MCP server.
-6. The MCP server executes the requested expense operation.
-7. LangGraph processes the tool response and generates the final answer.
-8. SQLite checkpointing maintains conversation state.
+5. For document-related questions, the RAG tool retrieves relevant content from the uploaded PDF.
+6. For expense-related requests, the MCP client communicates with the configured MCP server.
+7. The MCP server executes the requested expense operation.
+8. LangGraph processes the tool response and generates the final answer.
+9. SQLite checkpointing maintains conversation state.
 
 ## Expense Management Rules
 
@@ -232,6 +295,7 @@ The main MCP integration is handled through `mcp_tools.py`, which connects MCP t
 - Enhance token-by-token response streaming.
 - Improve conversation history display for MCP tool interactions.
 - Add persistent storage for the remote Expense Tracker server.
+- Improve document management and support for multiple uploaded documents.
 - Further improve error handling and user experience.
 
 ## Author
