@@ -10,3 +10,10 @@ chatbot.db
 chatbot.db-shm
 chatbot.db-wal
 myenv_old/
+# Expense Tracker Database
+expenses.db
+expenses.db-shm
+expenses.db-wal
+
+# Environment files
+.env.*

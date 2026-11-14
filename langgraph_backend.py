@@ -4,6 +4,8 @@ load_dotenv()
 import os
 import sqlite3
 import requests
+import calendar
+from datetime import date, timedelta
 from typing import TypedDict, Annotated
 
 from langgraph.graph import StateGraph, START, END
@@ -16,6 +18,8 @@ from langchain_core.tools import tool
 from langchain_groq import ChatGroq
 from ddgs import DDGS
 from langchain_core.messages import SystemMessage
+
+from mcp_tools import load_expense_tools
 
 
 llm = ChatGroq(
@@ -101,7 +105,13 @@ def get_stock_price(symbol: str) -> dict:
         return {"error": str(e)}
 
 
-tools = [calculator, get_stock_price, web_search]
+# ***************************** MCP TOOLS (EXPENSE TRACKER) *****************************
+# Loaded from the expense tracker MCP server chosen by MCP_MODE in your .env file.
+# If the server is not configured or not reachable, this list is empty and the
+# chatbot works exactly as before.
+expense_tools = load_expense_tools()
+
+tools = [calculator, get_stock_price, web_search] + expense_tools
 llm_with_tools = llm.bind_tools(tools)
 
 
@@ -109,12 +119,7 @@ class ChatState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
 
 
-
-def chat_node(state: ChatState) -> ChatState:
-
-    messages = state['messages']
-
-    system_message = SystemMessage(content="""
+BASE_PROMPT = """
 You are a reliable research assistant.
 
 When using web_search:
@@ -127,7 +132,49 @@ When using web_search:
 6. If a snippet is insufficient, exclude that finding.
 7. Clearly state when information cannot be verified.
 8. Never claim that results are the latest unless dates support it.
-""")
+"""
+
+EXPENSE_PROMPT = """
+You can also manage the user's personal expense tracker with the expense tools
+(add_expense, list_expenses, search_expenses, edit_expense, delete_expense,
+summary, monthly_report, budget_status, list_categories and so on).
+
+When using the expense tools:
+
+1. Amounts are in PKR. Today's date is {today}.
+2. Dates use the YYYY-MM-DD format and months use YYYY-MM.
+3. "This month" is {month} (from {month_start} to {month_end}) and "last month" is {last_month}.
+   Use exactly these values and never guess a date range. For a question about one whole
+   month, call monthly_report with that month.
+4. If you are not sure about a category or subcategory name, call list_categories first.
+5. Only report expense data that the tools actually returned. Never invent entries or totals.
+6. Ask the user to confirm before calling delete_expense or delete_category.
+7. If a tool returns an error, explain it simply and try to fix it, for example by using the right category name.
+8. Never create a category or subcategory on your own. If the one the user names does not exist, tell the user, list the existing ones, and ask whether to create it or use another.
+"""
+
+
+def build_system_prompt(today=None) -> str:
+    prompt = BASE_PROMPT
+    if expense_tools:
+        today = today or date.today()
+        last_day = calendar.monthrange(today.year, today.month)[1]
+        previous_month = today.replace(day=1) - timedelta(days=1)
+        prompt += EXPENSE_PROMPT.format(
+            today=today.isoformat(),
+            month=today.strftime("%Y-%m"),
+            month_start=today.replace(day=1).isoformat(),
+            month_end=today.replace(day=last_day).isoformat(),
+            last_month=previous_month.strftime("%Y-%m"),
+        )
+    return prompt
+
+
+def chat_node(state: ChatState) -> ChatState:
+
+    messages = state['messages']
+
+    system_message = SystemMessage(content=build_system_prompt())
 
     response = llm_with_tools.invoke(
         [system_message] + messages

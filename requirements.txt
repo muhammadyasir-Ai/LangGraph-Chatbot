@@ -2,3 +2,7 @@ langgraph
 langchain-groq
 python-dotenv
 streamlit
+fastmcp
+ddgs
+requests
+langgraph-checkpoint-sqlite
