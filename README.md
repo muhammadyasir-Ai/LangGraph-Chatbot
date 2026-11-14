@@ -1,18 +1,42 @@
 # LangGraph Chatbot
 
-An AI-powered chatbot built using **LangGraph, Groq LLM, and Streamlit**. It supports web search, mathematical calculations, stock price lookup, and persistent conversation history.
+An AI-powered chatbot built using **LangGraph, Groq LLM, Streamlit, and Model Context Protocol (MCP)**. It supports web search, mathematical calculations, stock price lookup, persistent conversation history, and expense management through MCP servers.
 
 ## Features
 
-- **AI Chatbot:** Chat with an LLM powered by Groq.
+### AI Chatbot
+- Chat with an LLM powered by Groq.
+- Manage conversations through an interactive Streamlit interface.
+
+### Built-in Tools
 - **Web Search:** Search the web using DuckDuckGo.
 - **Calculator:** Perform basic arithmetic operations.
-- **Stock Price:** Retrieve stock quotes using Alpha Vantage API.
+- **Stock Price:** Retrieve stock quotes using the Alpha Vantage API.
+
+### MCP Integration
+- **MCP Client:** Connect the chatbot to external MCP servers using Python and FastMCP.
+- **Local MCP Server:** Connect to a locally running Expense Tracker server.
+- **Remote MCP Server:** Connect to a deployed Expense Tracker server hosted on Horizon.
+- **Multiple Server Connections:** Connect to local and remote MCP servers through an example client.
+- **16 MCP Tools:** Access expense management functionality through MCP.
+
+### Expense Tracker
+The chatbot can perform the following operations:
+
+- Add, list, search, edit, and delete expenses.
+- Manage expense categories.
+- Manage budgets.
+- Generate expense summaries.
+- Generate monthly reports.
+
+### Conversation Management
 - **Conversation History:** Access previous conversations.
-- **New Chat:** Start a fresh conversation whenever needed.
+- **New Chat:** Start a fresh conversation.
 - **Chat Titles:** Automatically generate titles from the first user message.
 - **Persistent Storage:** Save conversation states using SQLite and LangGraph checkpointing.
-- **LangSmith Integration:** Support for tracing and monitoring chatbot runs.
+
+### Monitoring
+- **LangSmith Integration:** Trace and monitor chatbot runs.
 
 ## Tech Stack
 
@@ -21,10 +45,13 @@ An AI-powered chatbot built using **LangGraph, Groq LLM, and Streamlit**. It sup
 - LangChain
 - Groq
 - Streamlit
+- FastMCP
+- Model Context Protocol (MCP)
 - SQLite
 - DuckDuckGo Search (`ddgs`)
 - Alpha Vantage API
 - LangSmith
+- Requests
 
 ## Project Structure
 
@@ -33,11 +60,21 @@ LangGraph-Chatbot/
 │
 ├── langgraph_backend.py
 ├── streamlit_frontend.py
+├── mcp_tools.py
+│
+├── client_local.py
+├── client_remote.py
+├── client_both.py
+│
 ├── requirements.txt
 ├── README.md
 ├── .gitignore
+│
 └── Images/
-    └── sidebar.png.png
+    ├── chatbot-conversation.png
+    ├── chatbot-interface.png
+    ├── chatbot-response.png
+    └── chatbot-sidebar.png
 ```
 
 ## Installation and Setup
@@ -69,12 +106,14 @@ myenv\Scripts\activate
 ### 4. Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ### 5. Configure Environment Variables
 
-Create a `.env` file in the project root directory:
+Create a `.env` file in the project root directory.
+
+Add your API keys and application settings:
 
 ```env
 GROQ_API_KEY=your_groq_api_key
@@ -83,13 +122,30 @@ ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key
 LANGSMITH_TRACING=true
 LANGSMITH_API_KEY=your_langsmith_api_key
 LANGSMITH_PROJECT=LangGraph Chatbot
+
+MCP_MODE=local
 ```
 
-Add your own API keys. Keep `.env` private and never upload it to GitHub.
+**MCP Configuration:**
 
-The Groq API key is required. The Alpha Vantage key is needed for stock price lookup. LangSmith settings are optional.
+- `MCP_MODE=local` uses the local Expense Tracker MCP server and its local database.
+- `MCP_MODE=remote` uses the deployed remote MCP server.
+- Configure the remote server URL and authentication credentials according to the settings used by the MCP client.
 
-### 6. Run the Application
+Add your own API keys and server credentials. Never upload your `.env` file to GitHub.
+
+The Groq API key is required. Alpha Vantage is needed for stock price lookup. LangSmith settings are optional.
+
+### 6. Configure the MCP Server
+
+The chatbot requires a compatible Expense Tracker MCP server to use expense management tools.
+
+- Start the local MCP server when using local mode.
+- Ensure the deployed remote server is available and its authentication is configured when using remote mode.
+
+The local mode stores expense data in a local SQLite database. The remote server is currently intended for testing.
+
+### 7. Run the Application
 
 ```bash
 streamlit run streamlit_frontend.py
@@ -97,17 +153,49 @@ streamlit run streamlit_frontend.py
 
 The application will open in your browser.
 
+## MCP Client Examples
+
+The repository includes three example clients for understanding MCP connections:
+
+| File | Purpose |
+|---|---|
+| `client_local.py` | Connect to the local MCP server |
+| `client_remote.py` | Connect to the remote MCP server |
+| `client_both.py` | Connect to both MCP servers |
+
+The main MCP integration is handled through `mcp_tools.py`, which connects MCP tools with the LangGraph chatbot.
+
 ## How It Works
 
 1. The user sends a message through the Streamlit interface.
 2. LangGraph manages the chatbot workflow.
 3. The Groq model processes the request.
-4. When needed, the chatbot calls the appropriate tool:
+4. The chatbot selects the appropriate tool when required:
    - Web Search
    - Calculator
    - Stock Price
-5. LangGraph SQLite checkpointing maintains conversation state.
-6. The frontend displays the response and provides conversation history.
+   - Expense Tracker MCP Tools
+5. The MCP client communicates with the configured MCP server.
+6. The MCP server executes the requested expense operation.
+7. LangGraph processes the tool response and generates the final answer.
+8. SQLite checkpointing maintains conversation state.
+
+## Expense Management Rules
+
+- Expense amounts are handled in PKR.
+- The chatbot uses the current date and month range for date-related queries.
+- It asks for confirmation before deleting an expense.
+- It asks before creating a new expense category.
+- Tool errors are handled so the chatbot can explain problems without unnecessarily stopping other functionality.
+
+## Local and Remote Modes
+
+| Mode | Description | Data Storage |
+|---|---|---|
+| Local | Connects to the local Expense Tracker MCP server | Local SQLite database |
+| Remote | Connects to the deployed Horizon MCP server | Currently temporary test storage |
+
+**Recommendation:** Use local mode for normal usage because its expense database is persistent. Remote mode is currently intended for testing because its data may reset when the server restarts.
 
 ## Environment Variables
 
@@ -118,26 +206,33 @@ The application will open in your browser.
 | `LANGSMITH_TRACING` | Enables LangSmith tracing |
 | `LANGSMITH_API_KEY` | LangSmith authentication |
 | `LANGSMITH_PROJECT` | LangSmith project name |
+| `MCP_MODE` | Selects local or remote MCP mode |
+
+## Screenshots
+
+### Chatbot Conversation
+
+![Chatbot Conversation](Images/chatbot-conversation.png)
+
+### Chatbot Interface
+
+![Chatbot Interface](Images/chatbot-interface.png)
+
+### Chatbot Response
+
+![Chatbot Response](Images/chatbot-response.png)
+
+### Sidebar
+
+![Sidebar Screenshot](Images/chatbot-sidebar.png)
 
 ## Future Improvements
 
 - Improve search result freshness and relevance.
-- Enhance response streaming.
-- Improve error handling and user experience.
-
-  ## Screenshots
-
-### Chatbot Conversation
-![Chatbot Conversation](Images/chatbot-conversation.png)
-
-### Chatbot Interface
-![Chatbot Interface](Images/chatbot-interface.png)
-
-### Chatbot Response
-![Chatbot Response](Images/chatbot-response.png)
-
-### Sidebar
-![Sidebar Screenshot](Images/chatbot-sidebar.png)
+- Enhance token-by-token response streaming.
+- Improve conversation history display for MCP tool interactions.
+- Add persistent storage for the remote Expense Tracker server.
+- Further improve error handling and user experience.
 
 ## Author
 
