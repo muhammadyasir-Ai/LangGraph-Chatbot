@@ -136,14 +136,29 @@ Create a `.env` file in the project root directory.
 Add your API keys and application settings:
 
 ```env
+```env
+# Groq LLM
 GROQ_API_KEY=your_groq_api_key
+
+# Alpha Vantage
 ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key
 
+# LangSmith
 LANGSMITH_TRACING=true
 LANGSMITH_API_KEY=your_langsmith_api_key
 LANGSMITH_PROJECT=LangGraph Chatbot
 
+# MCP Configuration
 MCP_MODE=local
+
+# Local MCP Server
+UV_PATH=C:/Path/To/uv.exe
+EXPENSE_LOCAL_DIR=C:/Path/To/fastmcp-expense-tracker
+
+# Remote MCP Server (required only for remote mode)
+EXPENSE_MCP_URL=your_remote_mcp_server_url
+EXPENSE_MCP_API_KEY=your_remote_mcp_api_key
+```
 ```
 
 **MCP Configuration:**
