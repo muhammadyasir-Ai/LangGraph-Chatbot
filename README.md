@@ -300,7 +300,12 @@ The main MCP integration is handled through `mcp_tools.py`, which connects MCP t
 | `LANGSMITH_API_KEY` | LangSmith authentication |
 | `LANGSMITH_PROJECT` | LangSmith project name |
 | `MCP_MODE` | Selects local or remote MCP mode |
+| `UV_PATH` | Path to the UV executable (local mode) |
+| `EXPENSE_LOCAL_DIR` | Local Expense Tracker project directory |
+| `EXPENSE_MCP_URL` | Remote MCP server URL |
+| `EXPENSE_MCP_API_KEY` | Remote MCP server authentication |
 
+**Note:** Local mode requires `UV_PATH` and `EXPENSE_LOCAL_DIR`. Remote mode requires `EXPENSE_MCP_URL` and `EXPENSE_MCP_API_KEY`. Never commit your actual `.env` file or API credentials to GitHub.
 ## Screenshots
 
 ### Chatbot Conversation
