@@ -158,12 +158,27 @@ The Groq API key is required. Alpha Vantage is needed for stock price lookup. La
 
 ### 6. Configure the MCP Server
 
-The chatbot requires a compatible Expense Tracker MCP server to use expense management tools.
+The chatbot uses a separate Expense Tracker MCP server for expense management functionality.
 
-- Start the local MCP server when using local mode.
-- Ensure the deployed remote server is available and its authentication is configured when using remote mode.
+**Expense Tracker Repository:** [fastmcp-expense-tracker](https://github.com/muhammadyasir-Ai/fastmcp-expense-tracker)
 
-The local mode stores expense data in a local SQLite database. The remote server is currently intended for testing.
+Clone and configure the Expense Tracker repository separately before using expense management features.
+
+### Local MCP Server
+
+- Runs the Expense Tracker MCP server on your computer using UV.
+- Configure `UV_PATH` with the path to your UV executable.
+- Configure `EXPENSE_LOCAL_DIR` with the local Expense Tracker project directory.
+- Local expense data is stored in a SQLite database.
+
+### Remote MCP Server
+
+- Connects to the deployed Expense Tracker MCP server hosted on Horizon.
+- Configure `EXPENSE_MCP_URL` with the remote server URL.
+- Configure `EXPENSE_MCP_API_KEY` with the authentication API key.
+- Remote mode currently uses temporary test storage and is intended for testing.
+
+Set `MCP_MODE=local` or `MCP_MODE=remote` in your `.env` file to select the server.
 
 ### 7. Run the Application
 
