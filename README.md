@@ -97,6 +97,9 @@ LangGraph-Chatbot/
     └── chatbot-sidebar.png
 ```
 
+- `rag_pipeline.py` – Loads PDFs, splits text into chunks, creates embeddings, builds the FAISS vector store, and retrieves relevant documents.
+- `rag_store.py` – Stores and provides access to the active FAISS vector store shared between the Streamlit frontend and LangGraph backend.
+
 ## Installation and Setup
 
 ### 1. Clone the Repository
