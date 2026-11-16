@@ -244,6 +244,8 @@ Groq LLM Response
 
 The embedding model is downloaded locally from Hugging Face. The first run may take additional time because the model needs to be downloaded.
 
+**Embedding Model:** `sentence-transformers/all-MiniLM-L6-v2` (approximately 90 MB).
+
 ## MCP Client Examples
 
 The repository includes three example clients for understanding MCP connections:
